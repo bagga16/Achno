@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "47656535578",
+    "firebase_url": "https://achno-3347e-default-rtdb.firebaseio.com",
+    "project_id": "achno-3347e",
+    "storage_bucket": "achno-3347e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:47656535578:android:e232d759cf403bcb55f3a3",
+        "android_client_info": {
+          "package_name": "com.example.achno"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlgu1pLb9CX076LzXSAeQQN3lnWeX6o_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
