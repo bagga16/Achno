@@ -31,7 +31,7 @@ class SignupScreen extends StatelessWidget {
             Align(
               alignment: Alignment.center,
               child: Image.asset(
-                'assets/images/world_logo.png', // Ensure you have the logo image at this path
+                'assets/icons/Slogo.png', // Ensure you have the logo image at this path
                 height: 60,
                 width: 60,
               ),

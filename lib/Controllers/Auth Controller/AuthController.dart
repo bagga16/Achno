@@ -1,3 +1,4 @@
+import 'package:achno/App%20Screens/Home%20Screens/Home%20Screen.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -21,6 +22,7 @@ class AuthController extends GetxController {
         email: email,
         password: password,
       );
+        Get.offAll(() => HomeScreen());
       return userCredential.user;
     } catch (e) {
       return null; // Handle error
@@ -33,6 +35,7 @@ class AuthController extends GetxController {
         email: email,
         password: password,
       );
+        Get.offAll(() => HomeScreen());
       return userCredential.user;
     } catch (e) {
       return null; // Handle error

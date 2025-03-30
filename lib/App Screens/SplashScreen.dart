@@ -1,6 +1,8 @@
 import 'package:achno/App%20Screens/Auth%20Screens/LoginScreen.dart';
 import 'package:achno/App%20Screens/Auth%20Screens/SignUpScreen.dart';
+import 'package:achno/App%20Screens/Home%20Screens/Home%20Screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../Controllers/Auth Controller/AuthController.dart';
 
@@ -15,16 +17,36 @@ class SplashScreen extends StatelessWidget {
     // Delay to simulate splash screen and then navigate
     Future.delayed(const Duration(seconds: 2), () {
       if (authController.isLoggedIn()) {
-        Get.offAll(() =>  LoginScreen());  // Navigate to LoginScreen if logged in
+        Get.offAll(() =>  HomeScreen());  // Navigate to LoginScreen if logged in
       } else {
         Get.offAll(() =>  SignupScreen());  // Navigate to SignupScreen if not logged in
       }
     });
 
     return Scaffold(
-      backgroundColor: Colors.green,  // Customize splash screen color
-      body: Center(
-        child: Image.asset('assets/images/splash_logo.png'),  // Add your splash logo
+   
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+         width: MediaQuery.of(context).size.width,
+         decoration: BoxDecoration(
+    gradient: LinearGradient(
+      colors: [
+        Color.fromRGBO(129, 203, 194, 1), 
+        Color.fromRGBO(32, 160, 144, 1),  
+      ],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+  ),
+        child: Center(
+          child: Column(
+            
+            children: [
+              Image.asset('assets/images/logo.png'),
+              Text("Achno", style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w700),)
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -38,12 +38,16 @@
 
 import 'package:achno/App%20Screens/Auth%20Screens/LoginScreen.dart';
 import 'package:achno/App%20Screens/Auth%20Screens/SignUpScreen.dart';
+import 'package:achno/App%20Screens/Home%20Screens/Home%20Screen.dart';
+import 'package:achno/App%20Screens/Home%20Screens/Messages.dart';
+import 'package:achno/App%20Screens/Home%20Screens/Notifications.dart';
 import 'package:achno/App%20Screens/SplashScreen.dart';
 import 'package:achno/Utils/Localization.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,6 +66,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'App Name',
       theme: ThemeData(primarySwatch: Colors.green),
       supportedLocales: AppLocalizations.supportedLocales, // Define supported languages
@@ -75,6 +80,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
+        '/home': (context) => HomeScreen(), 
+        '/messages': (context) => Messages(),
+        '/notifications': (context) => Notifications(), 
       },
     );
   }
