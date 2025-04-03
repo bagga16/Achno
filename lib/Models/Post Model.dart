@@ -11,6 +11,8 @@ class PostModel {
   final double rating;
   final int responses;
   final String postType;
+   bool isVoiceMessage;
+  final String duration;
 
   PostModel({
     required this.username,
@@ -23,5 +25,7 @@ class PostModel {
     required this.rating,
     required this.responses,
     required this.postType,
+     this.isVoiceMessage = false,
+    required this.duration,
   });
 }

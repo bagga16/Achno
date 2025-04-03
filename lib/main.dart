@@ -82,7 +82,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => SignupScreen(),
         '/home': (context) => HomeScreen(), 
         '/messages': (context) => Messages(),
-        '/notifications': (context) => Notifications(), 
+        '/notifications': (context) => NotificationsScreen(), 
       },
     );
   }

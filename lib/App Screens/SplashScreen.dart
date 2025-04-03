@@ -1,6 +1,7 @@
 import 'package:achno/App%20Screens/Auth%20Screens/LoginScreen.dart';
 import 'package:achno/App%20Screens/Auth%20Screens/SignUpScreen.dart';
 import 'package:achno/App%20Screens/Home%20Screens/Home%20Screen.dart';
+import 'package:achno/Home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -17,7 +18,7 @@ class SplashScreen extends StatelessWidget {
     // Delay to simulate splash screen and then navigate
     Future.delayed(const Duration(seconds: 2), () {
       if (authController.isLoggedIn()) {
-        Get.offAll(() =>  HomeScreen());  // Navigate to LoginScreen if logged in
+        Get.offAll(() =>  Home());  // Navigate to LoginScreen if logged in
       } else {
         Get.offAll(() =>  SignupScreen());  // Navigate to SignupScreen if not logged in
       }
