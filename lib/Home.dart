@@ -79,7 +79,7 @@ class _HomeState extends State<Home> {
   // Screens list for navigation
   final List<Widget> screens = [
     HomeScreen(),
-    MessageList(),
+    MessageListView(currentUser: 'bagga',),
     NotificationsScreen(),
     SettingsScreen(),
     CreatePostScreen(),

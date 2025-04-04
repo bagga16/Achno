@@ -1,5 +1,3 @@
-// models/message_model.dart
-
 class MessageModel {
   final String sender;
   final String message;
@@ -14,4 +12,22 @@ class MessageModel {
     required this.isVoiceMessage,
     required this.duration,
   });
+
+  factory MessageModel.fromJson(Map<String, dynamic> json) {
+    return MessageModel(
+      sender: json['sender'],
+      message: json['message'],
+      timestamp: json['timestamp'],
+      isVoiceMessage: json['isVoiceMessage'],
+      duration: json['duration'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'sender': sender,
+    'message': message,
+    'timestamp': timestamp,
+    'isVoiceMessage': isVoiceMessage,
+    'duration': duration,
+  };
 }
