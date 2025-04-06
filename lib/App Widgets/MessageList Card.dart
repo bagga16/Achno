@@ -1,96 +1,71 @@
 
-
 // import 'package:achno/App%20Screens/Chat%20Screens/Chat%20Screen.dart';
-// import 'package:achno/Controllers/chating%20Controllers/MessageController.dart';
+// import 'package:achno/Controllers/chating%20Controllers/All%20chats%20Controller.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 
-// class MessageList extends StatelessWidget {
+// class MessageListView extends StatelessWidget {
+//   final String currentUser;
+//   const MessageListView({super.key, required this.currentUser});
+
 //   @override
 //   Widget build(BuildContext context) {
-//     final MessageController messageController = Get.put(MessageController());
+//     final controller = Get.put(MessageListController());
+//     controller.fetchAllUsers();  // Fetch all users
 
 //     return Scaffold(
 //       appBar: AppBar(
-//         title: Text('Messages'),  // Title should be "Messages"
-//         backgroundColor: Colors.green,  // Matching the theme color
+//         title: const Text('Messages'),
 //         actions: [
 //           IconButton(
+//             icon: const Icon(Icons.refresh),
 //             onPressed: () {
-//               // Add logic for Mark All Read here
-//               // For now, just print a message for debugging
-//               print("Mark all as read");
+//               controller.fetchAllUsers();  // Refresh user list
 //             },
-//             icon: const Icon(Icons.done_all),
 //           ),
 //         ],
 //       ),
-//       body: Obx(
-//         () => ListView.builder(
-//           itemCount: messageController.userChats.length,
-//           itemBuilder: (context, index) {
-//             final userName = messageController.userChats.keys.elementAt(index);
-//             final messages = messageController.userChats[userName]!;
+//       body: Obx(() {
+//         if (controller.users.isEmpty) {
+//           return Center(child: CircularProgressIndicator());  // Show loading indicator
+//         }
 
-//             return Padding(
-//               padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-//               child: Card(
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(12.0),
-//                 ),
-//                 elevation: 3,
-//                 child: ListTile(
-//                   contentPadding: const EdgeInsets.all(12.0),
-//                   leading: CircleAvatar(
-//                     child: Icon(Icons.person),  // Avatar for each user
-//                   ),
-//                   title: Text(
-//                     userName,
-//                     style: TextStyle(fontWeight: FontWeight.bold),
-//                   ),
-//                   subtitle: Row(
-//                     children: [
-//                       Expanded(
-//                         child: Text(
-//                           messages.last.message,
-//                           maxLines: 1,
-//                           overflow: TextOverflow.ellipsis,
-//                           style: TextStyle(color: Colors.black.withOpacity(0.7)),
-//                         ),
-//                       ),
-//                       if (messages.last.isVoiceMessage)
-//                         Icon(Icons.volume_up, size: 20, color: Colors.grey),
-//                       SizedBox(width: 8),
-//                       Text(messages.last.timestamp, style: TextStyle(fontSize: 12)),
-//                     ],
-//                   ),
-//                   onTap: () {
-//                     // Navigate to the chat screen with the selected user's messages
-//                     Get.to(() => ChatScreen(userName: userName, messages: messages));
-//                   },
-//                 ),
-//               ),
+//         return ListView.builder(
+//           itemCount: controller.users.length,
+//           itemBuilder: (context, index) {
+//             final user = controller.users[index];
+//             final userName = user['name'];
+//             final userEmail = user['email'];
+
+//             // Don't allow the current user to start a conversation with themselves
+//             if (userEmail == currentUser) {
+//               return SizedBox.shrink(); // Skip if it's the current user
+//             }
+
+//             return ListTile(
+//               leading: const CircleAvatar(child: Icon(Icons.person)),
+//               title: Text(userName),
+//               subtitle: Text(userEmail),
+//               onTap: () {
+//                 // Navigate to the chat screen with the selected user
+//                 Get.to(() => ChatView(
+//                   currentUser: currentUser,
+//                   otherUser: userEmail,  // Pass the email as the identifier
+//                 ));
+//               },
 //             );
 //           },
-//         ),
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: () {
-//           // Handle navigation to a new chat screen (if implemented)
-//           print("Compose a new message");
-//         },
-//         child: const Icon(Icons.message),
-//         backgroundColor: Colors.green,  // Match the button color with theme
-//       ),
+//         );
+//       }),
 //     );
 //   }
 // }
-
 
 import 'package:achno/App%20Screens/Chat%20Screens/Chat%20Screen.dart';
 import 'package:achno/Controllers/chating%20Controllers/All%20chats%20Controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 class MessageListView extends StatelessWidget {
   final String currentUser;
   const MessageListView({super.key, required this.currentUser});
@@ -98,7 +73,7 @@ class MessageListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(MessageListController());
-    controller.fetchChatUsers(currentUser);
+    controller.fetchChatUsers(currentUser);  // Fetch users that the current user has conversations with
 
     return Scaffold(
       appBar: AppBar(
@@ -107,27 +82,43 @@ class MessageListView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              controller.fetchChatUsers(currentUser);
+              controller.fetchChatUsers(currentUser);  // Refresh user list
             },
           ),
         ],
       ),
-      body: Obx(() => ListView.builder(
-        itemCount: controller.chatUsers.length,
-        itemBuilder: (context, index) {
-          final otherUser = controller.chatUsers[index];
-          return ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.person)),
-            title: Text(otherUser),
-            onTap: () {
-              Get.to(() => ChatView(
-                    currentUser: currentUser,
-                    otherUser: otherUser,
-                  ));
-            },
-          );
-        },
-      )),
+      body: Obx(() {
+        if (controller.users.isEmpty) {
+          return Center(child: CircularProgressIndicator());  // Show loading indicator
+        }
+
+        return ListView.builder(
+          itemCount: controller.users.length,
+          itemBuilder: (context, index) {
+            final user = controller.users[index];
+            final userName = user['name'];
+            final userEmail = user['email'];
+
+            // Skip if it's the current user
+            if (userEmail == currentUser) {
+              return SizedBox.shrink();
+            }
+
+            return ListTile(
+              leading: const CircleAvatar(child: Icon(Icons.person)),
+              title: Text(userName),
+              subtitle: Text(userEmail),
+              onTap: () {
+                // Navigate to the chat screen with the selected user
+                Get.to(() => ChatView(
+                  currentUser: currentUser,
+                  otherUser: userEmail,  // Pass the email as the identifier
+                ));
+              },
+            );
+          },
+        );
+      }),
     );
   }
 }

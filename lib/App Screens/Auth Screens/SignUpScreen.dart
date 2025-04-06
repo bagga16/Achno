@@ -98,9 +98,10 @@ class SignupScreen extends StatelessWidget {
                 final number = _numberController.text;
                 final password = _passwordController.text;
                 final confirmPassword = _confirmPasswordController.text;
+            
 
                 if (password == confirmPassword) {
-                  final user = await authController.signUp(number, password);
+                  final user = await authController.signUp(number, password,confirmPassword);
 
                   if (user != null) {
                     Get.offAllNamed('/home'); // Navigate to home screen

@@ -1,0 +1,2 @@
+D:/Projects/Achno/android/app/.cxx/Debug/4l1o2q3m/x86_64/CMakeFiles/edit_cache.dir
+D:/Projects/Achno/android/app/.cxx/Debug/4l1o2q3m/x86_64/CMakeFiles/rebuild_cache.dir

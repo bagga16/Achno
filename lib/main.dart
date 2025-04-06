@@ -5,6 +5,7 @@ import 'package:achno/App%20Screens/Home%20Screens/Home%20Screen.dart';
 import 'package:achno/App%20Screens/Home%20Screens/Messages.dart';
 import 'package:achno/App%20Screens/Home%20Screens/Notifications.dart';
 import 'package:achno/App%20Screens/SplashScreen.dart';
+import 'package:achno/Home.dart';
 import 'package:achno/Utils/Localization.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
-        '/home': (context) => HomeScreen(), 
+        '/home': (context) => Home(), 
         '/messages': (context) => Messages(),
         '/notifications': (context) => NotificationsScreen(), 
       },
