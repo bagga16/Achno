@@ -1,57 +1,10 @@
-// import 'package:achno/App%20Screens/Home%20Screens/Home%20Screen.dart';
-// import 'package:get/get.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-
-// class AuthController extends GetxController {
-//   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-//   Rx<User?> _user = Rx<User?>(null);
-//   User? get user => _user.value;
-
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     _user.bindStream(_auth.authStateChanges());
-//   }
-
-//   bool isLoggedIn() => _user.value != null;
-
-//   Future<User?> signIn(String email, String password) async {
-//     try {
-//       final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-//         email: email,
-//         password: password,
-//       );
-//         Get.offAll(() => HomeScreen());
-//       return userCredential.user;
-//     } catch (e) {
-//       return null; // Handle error
-//     }
-//   }
-
-//   Future<User?> signUp(String email, String password) async {
-//     try {
-//       final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-//         email: email,
-//         password: password,
-//       );
-//         Get.offAll(() => HomeScreen());
-//       return userCredential.user;
-//     } catch (e) {
-//       return null; // Handle error
-//     }
-//   }
-
-//   Future<void> signOut() async {
-//     await _auth.signOut();
-//   }  
-// }
 
 import 'dart:io';
 
-import 'package:achno/App%20Screens/Home%20Screens/Home%20Screen.dart';
+import 'package:achno/App%20Screens/Auth%20Screens/UserDetailsScreen.dart';
 import 'package:achno/App%20Screens/SplashScreen.dart';
 import 'package:achno/Home.dart';
+import 'package:achno/Models/User%20Model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -72,6 +25,15 @@ class AuthController extends GetxController {
   }
 
   bool isLoggedIn() => _user.value != null;
+  final RxBool isPasswordHidden = true.obs;
+final RxBool isConfirmPasswordHidden = true.obs;
+
+void togglePasswordVisibility() {
+  isPasswordHidden.value = !isPasswordHidden.value;
+}
+void toggleConfirmPasswordVisibility() {
+  isConfirmPasswordHidden.value = !isConfirmPasswordHidden.value;
+}
 
   // Sign in method
   Future<User?> signIn(String email, String password) async {
@@ -103,12 +65,16 @@ class AuthController extends GetxController {
       email
             );
 
-      Get.offAll(() => Home());
+      Get.offAll(() => UserDetailsScreen());
       return userCredential.user;
     } catch (e) {
       return null; // Handle error
     }
   }
+
+Future<void> saveUserData(UserModel userModel) async {
+  await _firestore.collection('All Users').doc(userModel.uid).set(userModel.toMap());
+}
 
   // Method to upload profile image to Firebase Storage
   Future<String> _uploadProfileImage(String imagePath) async {
@@ -122,6 +88,7 @@ class AuthController extends GetxController {
       return ''; // Return an empty string if the image upload fails
     }
   }
+
 
   // Method to create user data in Firestore
   Future<void> _createUserInFirestore(User user, String name, String profileImageUrl) async {
@@ -160,3 +127,46 @@ class AuthController extends GetxController {
     }
   }
 }
+
+
+
+
+
+
+
+
+
+////////////////// with phone
+///
+  // // ✅ LOGIN with number as email workaround
+  // Future<User?> signIn(String phone, String password) async {
+  //   final fakeEmail = "$phone@achno.app";
+  //   try {
+  //     final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+  //       email: fakeEmail,
+  //       password: password,
+  //     );
+  //     Get.offAll(() => Home());
+  //     return userCredential.user;
+  //   } catch (e) {
+  //     Get.snackbar("Login Error", "Invalid phone or password");
+  //     return null;
+  //   }
+  // }
+
+  // // ✅ SIGNUP with phone as fake email
+  // Future<User?> signUp(String phone, String password) async {
+  //   final fakeEmail = "$phone@achno.app";
+  //   try {
+  //     final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+  //       email: fakeEmail,
+  //       password: password,
+  //     );
+
+  //     Get.offAll(() => Home());
+  //     return userCredential.user;
+  //   } catch (e) {
+  //     Get.snackbar("Signup Error", "Phone number may already exist");
+  //     return null;
+  //   }
+  // }

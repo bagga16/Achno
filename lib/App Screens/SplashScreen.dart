@@ -1,9 +1,7 @@
-import 'package:achno/App%20Screens/Auth%20Screens/LoginScreen.dart';
+
 import 'package:achno/App%20Screens/Auth%20Screens/SignUpScreen.dart';
-import 'package:achno/App%20Screens/Home%20Screens/Home%20Screen.dart';
 import 'package:achno/Home.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../Controllers/Auth Controller/AuthController.dart';
 
@@ -41,8 +39,10 @@ class SplashScreen extends StatelessWidget {
   ),
         child: Center(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment .center,
             
             children: [
+              SizedBox(height: 300,),
               Image.asset('assets/images/logo.png'),
               Text("Achno", style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w700),)
             ],

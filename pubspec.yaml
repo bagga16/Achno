@@ -49,6 +49,7 @@ dependencies:
   firebase_storage: ^12.4.5
   flutter_sound: ^9.28.0
   record: ^6.0.0
+  get_storage: ^2.1.1
 
 dev_dependencies:
   flutter_test:
