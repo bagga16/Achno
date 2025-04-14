@@ -107,7 +107,7 @@ class UserDetailsScreen extends StatelessWidget {
                     city: cityController.text.trim(),
                     activity: selectedActivity.value,
                     location: selectedLocation.value,
-                    profileImage: '',
+                    profileImage: '', textInfo: '', fullName: '', videoIntro: '',
                   );
 
                   await authController.saveUserData(user);

@@ -58,6 +58,7 @@
 // }
 
 
+import 'package:achno/App%20Screens/Auth%20Screens/ForgetPassword%20Screen.dart';
 import 'package:achno/App%20Screens/Auth%20Screens/SignUpScreen.dart';
 import 'package:achno/Common%20Components/CommonButton.dart';
 import 'package:achno/Common%20Components/CustomTextField.dart';
@@ -118,7 +119,7 @@ class LoginScreen extends StatelessWidget {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    // TODO: Add forgot password logic
+                    Get.to(ForgotPasswordView());
                   },
                   child: const Text(
                     'Forgot password?',

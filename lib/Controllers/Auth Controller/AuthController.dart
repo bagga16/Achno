@@ -9,7 +9,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart'; // For handling image uploads
 
 class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -17,6 +16,7 @@ class AuthController extends GetxController {
 
   Rx<User?> _user = Rx<User?>(null);
   User? get user => _user.value;
+  final Rx<UserModel?> currentUserModel = Rx<UserModel?>(null);
 
   @override
   void onInit() {
@@ -76,18 +76,28 @@ Future<void> saveUserData(UserModel userModel) async {
   await _firestore.collection('All Users').doc(userModel.uid).set(userModel.toMap());
 }
 
-  // Method to upload profile image to Firebase Storage
-  Future<String> _uploadProfileImage(String imagePath) async {
-    try {
-      final file = XFile(imagePath);
-      final storageRef = FirebaseStorage.instance.ref().child('profile_pictures/${file.name}');
-      await storageRef.putFile(File(file.path));
-
-      return await storageRef.getDownloadURL();
-    } catch (e) {
-      return ''; // Return an empty string if the image upload fails
+Future<void> fetchUserData() async {
+  final uid = _auth.currentUser?.uid;
+  if (uid != null) {
+    final doc = await _firestore.collection('All Users').doc(uid).get();
+    if (doc.exists) {
+      currentUserModel.value = UserModel.fromMap(doc.data()!);
     }
   }
+}
+
+Future<String> uploadProfileImage(String path) async {
+  final file = File(path);
+  final fileName = file.path.split('/').last;
+  final ref = FirebaseStorage.instance.ref().child('profile_pictures/$fileName');
+  await ref.putFile(file);
+  return await ref.getDownloadURL();
+}
+
+Future<void> updateUserProfile(UserModel userModel) async {
+  await _firestore.collection('All Users').doc(userModel.uid).update(userModel.toMap());
+  currentUserModel.value = userModel;
+}
 
 
   // Method to create user data in Firestore
@@ -103,6 +113,43 @@ Future<void> saveUserData(UserModel userModel) async {
       print('Error storing user data in Firestore: $e');
     }
   }
+
+  // Send password reset email
+Future<void> sendPasswordReset(String email) async {
+  try {
+    if (email.trim().isEmpty) throw FirebaseAuthException(code: 'invalid-email');
+
+    await _auth.sendPasswordResetEmail(email: email.trim());
+    Get.snackbar('Success', 'Reset email sent to $email');
+  } on FirebaseAuthException catch (e) {
+    String msg = 'Something went wrong';
+    if (e.code == 'user-not-found') {
+      msg = 'No account found with this email';
+    } else if (e.code == 'invalid-email') {
+      msg = 'Enter a valid email';
+    }
+    Get.snackbar('Error', msg);
+  } catch (e) {
+    Get.snackbar('Error', 'Could not send reset email');
+    print('Reset error: $e');
+  }
+}
+
+
+// Update current password
+Future<void> updatePassword(String newPassword) async {
+  final user = _auth.currentUser;
+  if (user != null) {
+    await user.updatePassword(newPassword);
+  } else {
+    throw FirebaseAuthException(
+      code: 'not-logged-in',
+      message: 'No user is currently logged in.',
+    );
+  }
+}
+
+
 
   // Sign out method
   Future<void> signOut() async {
