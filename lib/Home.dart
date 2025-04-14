@@ -25,7 +25,7 @@ class _HomeState extends State<Home> {
     MessageListView(currentUser: 'bagga',),
     NotificationsScreen(),
     SettingsScreen(),
-    CreatePostScreen(),
+    CreatePostView(),
   ];
 
   void _onItemTapped(int index) {
