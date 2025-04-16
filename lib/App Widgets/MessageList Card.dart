@@ -1,124 +1,319 @@
 
 // import 'package:achno/App%20Screens/Chat%20Screens/Chat%20Screen.dart';
-// import 'package:achno/Controllers/chating%20Controllers/All%20chats%20Controller.dart';
+// import 'package:achno/Models/User%20Model.dart';
 // import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 
-// class MessageListView extends StatelessWidget {
-//   final String currentUser;
-//   const MessageListView({super.key, required this.currentUser});
+// class MessagesScreen extends StatelessWidget {
+//   final String currentUserId;
+
+//   MessagesScreen({required this.currentUserId});
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final controller = Get.put(MessageListController());
-//     controller.fetchAllUsers();  // Fetch all users
-
 //     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Messages'),
-//         actions: [
-//           IconButton(
-//             icon: const Icon(Icons.refresh),
-//             onPressed: () {
-//               controller.fetchAllUsers();  // Refresh user list
-//             },
-//           ),
-//         ],
-//       ),
-//       body: Obx(() {
-//         if (controller.users.isEmpty) {
-//           return Center(child: CircularProgressIndicator());  // Show loading indicator
-//         }
+//       appBar: AppBar(title: Text('Messages')),
+//       body: StreamBuilder<QuerySnapshot>(
+//         stream: FirebaseFirestore.instance
+//             .collection('chats')
+//             .where('participants', arrayContains: currentUserId)
+//             .snapshots(),
+//         builder: (context, snapshot) {
+//           if (!snapshot.hasData) {
+//             return const Center(child: CircularProgressIndicator());
+//           }
 
-//         return ListView.builder(
-//           itemCount: controller.users.length,
-//           itemBuilder: (context, index) {
-//             final user = controller.users[index];
-//             final userName = user['name'];
-//             final userEmail = user['email'];
+//           final chats = snapshot.data!.docs;
 
-//             // Don't allow the current user to start a conversation with themselves
-//             if (userEmail == currentUser) {
-//               return SizedBox.shrink(); // Skip if it's the current user
-//             }
-
-//             return ListTile(
-//               leading: const CircleAvatar(child: Icon(Icons.person)),
-//               title: Text(userName),
-//               subtitle: Text(userEmail),
-//               onTap: () {
-//                 // Navigate to the chat screen with the selected user
-//                 Get.to(() => ChatView(
-//                   currentUser: currentUser,
-//                   otherUser: userEmail,  // Pass the email as the identifier
-//                 ));
-//               },
+//           if (chats.isEmpty) {
+//             return Center(
+//               child: ElevatedButton(
+//                 onPressed: () => _showAllUsers(context),
+//                 child: const Text("Start Chat"),
+//               ),
 //             );
-//           },
-//         );
-//       }),
+//           }
+
+//           return ListView.builder(
+//             itemCount: chats.length,
+//             itemBuilder: (context, index) {
+//               final chat = chats[index];
+//               final participants = List<String>.from(chat['participants']);
+//               final otherUserId = participants.firstWhere((id) => id != currentUserId);
+//               final lastMessage = chat['lastMessage'] ?? '';
+//               final timestamp = chat['timestamp'] ?? '';
+
+//               return FutureBuilder<DocumentSnapshot>(
+//                 future: FirebaseFirestore.instance
+//                     .collection('All Users')
+//                     .doc(otherUserId)
+//                     .get(),
+//                 builder: (context, userSnapshot) {
+//                   if (!userSnapshot.hasData) {
+//                     return const ListTile(title: Text('Loading...'));
+//                   }
+
+//                   final doc = userSnapshot.data!;
+//                   final raw = doc.data() as Map<String, dynamic>;
+//                   final safeMap = {
+//                     'uid': doc.id,
+//                     'phone': raw['phone'] ?? '',
+//                     'fullName': raw['fullName'] ?? '',
+//                     'city': raw['city'] ?? '',
+//                     'activity': raw['activity'] ?? '',
+//                     'textInfo': raw['textInfo'] ?? '',
+//                     'videoIntro': raw['videoIntro'] ?? '',
+//                     'location': raw['location'] ?? '',
+//                     'profileImage': raw['profileImage'] ?? '',
+//                     'rating': raw['rating'],
+//                     'reviews': raw['reviews'],
+//                   };
+
+//                   final user = UserModel.fromMap(safeMap);
+
+//                   return ListTile(
+//                     leading: CircleAvatar(backgroundImage: NetworkImage(user.profileImage)),
+//                     title: Text(user.fullName),
+//                     subtitle: Text(lastMessage),
+//                     trailing: Text(
+//                       timestamp != ''
+//                           ? TimeOfDay.fromDateTime(DateTime.parse(timestamp)).format(context)
+//                           : '',
+//                     ),
+//                     onTap: () {
+//                       Navigator.push(
+//                         context,
+//                         MaterialPageRoute(
+//                           builder: (context) => ChatScreen(
+//                             currentUserId: currentUserId,
+//                             otherUser: user,
+//                           ),
+//                         ),
+//                       );
+//                     },
+//                   );
+//                 },
+//               );
+//             },
+//           );
+//         },
+//       ),
+//     );
+//   }
+
+//   void _showAllUsers(BuildContext context) {
+//     showModalBottomSheet(
+//       context: context,
+//       builder: (ctx) => FutureBuilder<QuerySnapshot>(
+//         future: FirebaseFirestore.instance.collection('All Users').get(),
+//         builder: (ctx, snapshot) {
+//           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+
+//           final users = snapshot.data!.docs
+//               .where((doc) => doc.id != currentUserId)
+//               .map((doc) {
+//                 final raw = doc.data() as Map<String, dynamic>;
+//                 final safeMap = {
+//                   'uid': doc.id,
+//                   'phone': raw['phone'] ?? '',
+//                   'fullName': raw['fullName'] ?? '',
+//                   'city': raw['city'] ?? '',
+//                   'activity': raw['activity'] ?? '',
+//                   'textInfo': raw['textInfo'] ?? '',
+//                   'videoIntro': raw['videoIntro'] ?? '',
+//                   'location': raw['location'] ?? '',
+//                   'profileImage': raw['profileImage'] ?? '',
+//                   'rating': raw['rating'],
+//                   'reviews': raw['reviews'],
+//                 };
+//                 return UserModel.fromMap(safeMap);
+//               }).toList();
+
+//           return ListView.builder(
+//             itemCount: users.length,
+//             itemBuilder: (context, i) {
+//               final user = users[i];
+//               return ListTile(
+//                 leading: CircleAvatar(backgroundImage: NetworkImage(user.profileImage)),
+//                 title: Text(user.fullName),
+//                 onTap: () {
+//                   Navigator.pop(context);
+//                   Navigator.push(
+//                     context,
+//                     MaterialPageRoute(
+//                       builder: (_) => ChatScreen(
+//                         currentUserId: currentUserId,
+//                         otherUser: user,
+//                       ),
+//                     ),
+//                   );
+//                 },
+//               );
+//             },
+//           );
+//         },
+//       ),
 //     );
 //   }
 // }
 
-import 'package:achno/App%20Screens/Chat%20Screens/Chat%20Screen.dart';
-import 'package:achno/Controllers/chating%20Controllers/All%20chats%20Controller.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-class MessageListView extends StatelessWidget {
-  final String currentUser;
-  const MessageListView({super.key, required this.currentUser});
+import 'package:achno/App%20Screens/Chat%20Screens/Chat%20Screen.dart';
+import 'package:achno/Models/User%20Model.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class MessagesScreen extends StatelessWidget {
+  final String currentUserId;
+
+  MessagesScreen({required this.currentUserId});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(MessageListController());
-    controller.fetchChatUsers(currentUser);  // Fetch users that the current user has conversations with
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Messages'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              controller.fetchChatUsers(currentUser);  // Refresh user list
+      appBar: AppBar(title: Text('Messages')),
+
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('chats')
+            .where('participants', arrayContains: currentUserId)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final chats = snapshot.data!.docs;
+
+          if (chats.isEmpty) {
+            return const Center(child: Text("No chats yet"));
+          }
+
+          return ListView.builder(
+            itemCount: chats.length,
+            itemBuilder: (context, index) {
+              final chat = chats[index];
+              final participants = List<String>.from(chat['participants']);
+              final otherUserId = participants.firstWhere((id) => id != currentUserId);
+              final lastMessage = chat['lastMessage'] ?? '';
+              final timestamp = chat['timestamp'] ?? '';
+
+              return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('All Users')
+                    .doc(otherUserId)
+                    .get(),
+                builder: (context, userSnapshot) {
+                  if (!userSnapshot.hasData) {
+                    return const ListTile(title: Text('Loading...'));
+                  }
+
+                  final doc = userSnapshot.data!;
+                  final raw = doc.data() as Map<String, dynamic>;
+                  final safeMap = {
+                    'uid': doc.id,
+                    'phone': raw['phone'] ?? '',
+                    'fullName': raw['fullName'] ?? '',
+                    'city': raw['city'] ?? '',
+                    'activity': raw['activity'] ?? '',
+                    'textInfo': raw['textInfo'] ?? '',
+                    'videoIntro': raw['videoIntro'] ?? '',
+                    'location': raw['location'] ?? '',
+                    'profileImage': raw['profileImage'] ?? '',
+                    'rating': raw['rating'],
+                    'reviews': raw['reviews'],
+                  };
+
+                  final user = UserModel.fromMap(safeMap);
+
+                  return ListTile(
+                    leading: CircleAvatar(backgroundImage: NetworkImage(user.profileImage)),
+                    title: Text(user.fullName),
+                    subtitle: Text(lastMessage),
+                    trailing: Text(
+                      timestamp != ''
+                          ? TimeOfDay.fromDateTime(DateTime.parse(timestamp)).format(context)
+                          : '',
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatScreen(
+                            currentUserId: currentUserId,
+                            otherUser: user,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
             },
-          ),
-        ],
+          );
+        },
       ),
-      body: Obx(() {
-        if (controller.users.isEmpty) {
-          return Center(child: CircularProgressIndicator());  // Show loading indicator
-        }
 
-        return ListView.builder(
-          itemCount: controller.users.length,
-          itemBuilder: (context, index) {
-            final user = controller.users[index];
-            final userName = user['name'];
-            final userEmail = user['email'];
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.teal,
+        onPressed: () => _showAllUsers(context),
+        child: const Icon(Icons.chat),
+      ),
+    );
+  }
 
-            // Skip if it's the current user
-            if (userEmail == currentUser) {
-              return SizedBox.shrink();
-            }
+  void _showAllUsers(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => FutureBuilder<QuerySnapshot>(
+        future: FirebaseFirestore.instance.collection('All Users').get(),
+        builder: (ctx, snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
 
-            return ListTile(
-              leading: const CircleAvatar(child: Icon(Icons.person)),
-              title: Text(userName),
-              subtitle: Text(userEmail),
-              onTap: () {
-                // Navigate to the chat screen with the selected user
-                Get.to(() => ChatView(
-                  currentUser: currentUser,
-                  otherUser: userEmail,  // Pass the email as the identifier
-                ));
-              },
-            );
-          },
-        );
-      }),
+          final users = snapshot.data!.docs
+              .where((doc) => doc.id != currentUserId)
+              .map((doc) {
+                final raw = doc.data() as Map<String, dynamic>;
+                final safeMap = {
+                  'uid': doc.id,
+                  'phone': raw['phone'] ?? '',
+                  'fullName': raw['fullName'] ?? '',
+                  'city': raw['city'] ?? '',
+                  'activity': raw['activity'] ?? '',
+                  'textInfo': raw['textInfo'] ?? '',
+                  'videoIntro': raw['videoIntro'] ?? '',
+                  'location': raw['location'] ?? '',
+                  'profileImage': raw['profileImage'] ?? '',
+                  'rating': raw['rating'],
+                  'reviews': raw['reviews'],
+                };
+                return UserModel.fromMap(safeMap);
+              }).toList();
+
+          return ListView.builder(
+            itemCount: users.length,
+            itemBuilder: (context, i) {
+              final user = users[i];
+              return ListTile(
+                leading: CircleAvatar(backgroundImage: NetworkImage(user.profileImage)),
+                title: Text(user.fullName),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChatScreen(
+                        currentUserId: currentUserId,
+                        otherUser: user,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
